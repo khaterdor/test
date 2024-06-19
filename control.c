@@ -53,7 +53,7 @@ char *extractXml(char *parent, char *buffer) {
 
 }
 
-void handleRoutes(char *buffer) {
+void handleRequests(char *buffer) {
 
     // Home page
 
