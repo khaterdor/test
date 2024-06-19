@@ -1,3 +1,6 @@
 FROM gcc:latest
-COPY . .
-RUN gcc server.c && ./a.out
+WORKDIR /app
+COPY server.c .
+COPY control.c .
+RUN gcc -o server.c test
+CMD ["./test"]
