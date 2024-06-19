@@ -3,4 +3,4 @@ WORKDIR /app
 COPY server.c .
 COPY control.c .
 RUN gcc -o server.c test
-CMD ["./test"]
+CMD ["/app/test"]
