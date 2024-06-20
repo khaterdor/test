@@ -13,7 +13,7 @@ void sendRes(char *resCode, char *resName, char *conType, char *con){
     }
 }
 
-char *extractXml(char *parent, char *buffer) {
+char *extractXML(char *parent, char *buffer) {
 
     // Declare required variables
 
