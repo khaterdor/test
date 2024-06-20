@@ -10,8 +10,5 @@ COPY server.c control.c /app/
 # Compile the server.c to generate executable 'server'
 RUN gcc -o server server.c
 
-# Expose port 80 to allow external access
-EXPOSE 10000
-
 # Command to run the server when the container starts
 CMD ["./server"]
