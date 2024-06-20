@@ -7,7 +7,7 @@
 #include <netinet/in.h>
 
 enum Constants {
-    PORT_NUM = 80,
+    PORT_NUM = 8080,
     MAX_SIZE = 10240,
     MID_SIZE = 1024,
     MIN_SIZE = 256,
