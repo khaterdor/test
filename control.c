@@ -4,7 +4,7 @@ void sendRes(char *resCode, char *resName, char *conType, char *con){
         "HTTP/1.1 %s %s\r\n"
         "Content-Type: %s\r\n"
         "Content-strlength: %zu\r\n"
-        "Access-Control-Allow-Origin: *\r\n\r\n"
+       // "Access-Control-Allow-Origin: *\r\n\r\n"
     "%s", resCode, resName, conType, strlen(con), con);
 
     n = write(newsockfd, response, strlen(response));
