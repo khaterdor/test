@@ -10,7 +10,7 @@ COPY server.c control.c /app/
 # Compile the server.c to generate executable 'server'
 RUN gcc -o server server.c
 
-EXPOSE 8080
+# EXPOSE 8080
 
 # Command to run the server when the container starts
 CMD ["./server"]
