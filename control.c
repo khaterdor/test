@@ -59,6 +59,8 @@ void handleRequests(char *buffer) {
 
     if(strncmp(buffer, "GET / ", 6) == 0){
         sendRes("200", "OK", "text/html", "<h1>Hi</h1>");
+    } else {
+        sendRes("404", "Not found", "text/html", "<h1>Page not found</h1>");
     }
 
 }
