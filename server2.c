@@ -12,27 +12,6 @@ void error(const char *msg) {
     exit(EXIT_FAILURE);
 }
 
-void send_command(int sockfd, const char *cmd, char *response) {
-    send(sockfd, cmd, strlen(cmd), 0);
-    recv(sockfd, response, BUFFER_SIZE, 0);
-}
-
-void ftp_send_file(int sockfd, const char *filename) {
-    FILE *file = fopen(filename, "rb");
-    if (!file) {
-        error("Error opening file");
-    }
-
-    char buffer[BUFFER_SIZE];
-    size_t n;
-
-    while ((n = fread(buffer, 1, sizeof(buffer), file)) > 0) {
-        send(sockfd, buffer, n, 0);
-    }
-
-    fclose(file);
-}
-
 void ftp_receive_file(int sockfd, const char *filename) {
     FILE *file = fopen(filename, "wb");
     if (!file) {
@@ -49,60 +28,30 @@ void ftp_receive_file(int sockfd, const char *filename) {
     fclose(file);
 }
 
-int main(int argc, char *argv[]) {
-    if (argc < 6) {
-        fprintf(stderr, "Usage: %s <server_ip> <port> <username> <password> <file_to_send> <file_to_receive>\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
-
-    const char *server_ip = argv[1];
-    int port = atoi(argv[2]);
-    const char *username = argv[3];
-    const char *password = argv[4];
-    const char *file_to_send = argv[5];
-    const char *file_to_receive = argv[6];
-
-    int sockfd;
-    struct sockaddr_in server_addr;
-
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) {
-        error("Error opening socket");
-    }
-
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(port);
-    inet_pton(AF_INET, server_ip, &server_addr.sin_addr);
-
-    if (connect(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
-        error("Error connecting");
-    }
-
-    char response[BUFFER_SIZE];
-    
-    // Login
-    send_command(sockfd, "USER ", response);
-    send_command(sockfd, username, response);
-    send_command(sockfd, "\r\n", response);
-
-    send_command(sockfd, "PASS ", response);
-    send_command(sockfd, password, response);
-    send_command(sockfd, "\r\n", response);
-
-    // Send file
-    send_command(sockfd, "STOR ", response);
-    send_command(sockfd, file_to_send, response);
-    send_command(sockfd, "\r\n", response);
-
-    ftp_send_file(sockfd, file_to_send);
-
-    // Receive file
-    send_command(sockfd, "RETR ", response);
-    send_command(sockfd, file_to_receive, response);
-    send_command(sockfd, "\r\n", response);
-
-    ftp_receive_file(sockfd, file_to_receive);
-
-    close(sockfd);
+int main() {
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    int optval = 1;
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+    struct sockaddr_in serv_addr;
+    bzero((char *)&serv_addr, sizeof(serv_addr));
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(10000);
+    bind(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+    listen(sockfd, 5);
+    printf("Listening for requests on port 10000\r\n");
+    while (1) {
+        int newsockfd = accept(sockfd, NULL, NULL);
+        char buffer[1024];
+        bzero(buffer, sizeof(buffer));
+        int n = read(newsockfd, buffer, sizeof(buffer));
+        printf("Request:\r\n%s", buffer);
+        char response[256];
+        if (strncmp(buffer, "GET / ", 6) == 0) {
+        sprintf(response, "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<h1>Hello</h1>");
+        } else {
+        sprintf(response, "HTTP/1.1 404 Not found\r\nContent-Type: text/html\r\n\r\n<h1>Not found</h1>");
+        } close(newsockfd);
+    } close(sockfd);
     return 0;
 }
