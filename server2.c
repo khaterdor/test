@@ -49,8 +49,10 @@ int main() {
         char response[256];
         if (strncmp(buffer, "GET / ", 6) == 0) {
         sprintf(response, "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<h1>Hello</h1>");
+        n = write(newsockfd, response, strlen(response));
         } else {
         sprintf(response, "HTTP/1.1 404 Not found\r\nContent-Type: text/html\r\n\r\n<h1>Not found</h1>");
+        n = write(newsockfd, response, strlen(response));
         } close(newsockfd);
     } close(sockfd);
     return 0;
