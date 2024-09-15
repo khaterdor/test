@@ -1,3 +1,4 @@
 FROM gcc:latest
 COPY . .
-CMD ["gcc server2.c", "./a.out"]
+RUN gcc server2.c && ./a.out
+EXPOSE 10000
