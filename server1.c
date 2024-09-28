@@ -33,22 +33,6 @@ void ftp_send_file(int sockfd, const char *filename) {
     fclose(file);
 }
 
-void ftp_receive_file(int sockfd, const char *filename) {
-    FILE *file = fopen(filename, "wb");
-    if (!file) {
-        error("Error opening file");
-    }
-
-    char buffer[BUFFER_SIZE];
-    ssize_t n;
-
-    while ((n = recv(sockfd, buffer, sizeof(buffer), 0)) > 0) {
-        fwrite(buffer, 1, n, file);
-    }
-
-    fclose(file);
-}
-
 int main(int argc, char *argv[]) {
     if (argc < 6) {
         fprintf(stderr, "Usage: %s <server_ip> <port> <username> <password> <file_to_send> <file_to_receive>\n", argv[0]);
@@ -80,28 +64,11 @@ int main(int argc, char *argv[]) {
 
     char response[BUFFER_SIZE];
     
-    // Login
-    send_command(sockfd, "USER ", response);
-    send_command(sockfd, username, response);
-    send_command(sockfd, "\r\n", response);
-
-    send_command(sockfd, "PASS ", response);
-    send_command(sockfd, password, response);
-    send_command(sockfd, "\r\n", response);
-
-    // Send file
     send_command(sockfd, "STOR ", response);
     send_command(sockfd, file_to_send, response);
     send_command(sockfd, "\r\n", response);
 
     ftp_send_file(sockfd, file_to_send);
-
-    // Receive file
-    send_command(sockfd, "RETR ", response);
-    send_command(sockfd, file_to_receive, response);
-    send_command(sockfd, "\r\n", response);
-
-    ftp_receive_file(sockfd, file_to_receive);
 
     close(sockfd);
     return 0;
