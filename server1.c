@@ -41,10 +41,7 @@ int main(int argc, char *argv[]) {
 
     const char *server_ip = argv[1];
     int port = atoi(argv[2]);
-    const char *username = argv[3];
-    const char *password = argv[4];
-    const char *file_to_send = argv[5];
-    const char *file_to_receive = argv[6];
+    const char *file_to_send = argv[3];
 
     int sockfd;
     struct sockaddr_in server_addr;
