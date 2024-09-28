@@ -39,7 +39,7 @@ int main() {
             fclose(fptr);
             sprintf(response, "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %zu\r\n\r\n%s", strlen(txt), txt);
             n = write(newsockfd, response, strlen(response));
-        } else if (strncmp(buffer  "STOR ", 5) == 0) {
+        } else if (strncmp(buffer, "STOR ", 5) == 0) {
             FILE *fptr = fopen("file.txt", "w");
             n = read(newsockfd, buffer, sizeof(buffer));
             fprintf(fptr, "%s", buffer);
