@@ -12,22 +12,6 @@ void error(const char *msg) {
     exit(EXIT_FAILURE);
 }
 
-void ftp_receive_file(int sockfd, const char *filename) {
-    FILE *file = fopen(filename, "wb");
-    if (!file) {
-        error("Error opening file");
-    }
-
-    char buffer[BUFFER_SIZE];
-    ssize_t n;
-
-    while ((n = recv(sockfd, buffer, sizeof(buffer), 0)) > 0) {
-        fwrite(buffer, 1, n, file);
-    }
-
-    fclose(file);
-}
-
 int main() {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     int optval = 1;
@@ -48,11 +32,21 @@ int main() {
         printf("Request:\r\n%s", buffer);
         char response[256];
         if (strncmp(buffer, "GET / ", 6) == 0) {
-        sprintf(response, "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<h1>Hello</h1>");
-        n = write(newsockfd, response, strlen(response));
+            char txt[1024];
+            FILE *fptr = fopen("file.txt", "r");
+            if (fptr != NULL) fread(txt, 1, sizeof(txt), fptr);
+            else sprintf(txt, "<h1>Hello World</h1>");
+            fclose(fptr);
+            sprintf(response, "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %zu\r\n\r\n%s", strlen(txt), txt);
+            n = write(newsockfd, response, strlen(response));
+        } else if (strncmp(buffer  "STOR ", 5) == 0) {
+            FILE *fptr = fopen("file.txt", "w");
+            n = read(newsockfd, buffer, sizeof(buffer));
+            fprintf(fptr, "%s", buffer);
+            fclose(fptr);
         } else {
-        sprintf(response, "HTTP/1.1 404 Not found\r\nContent-Type: text/html\r\n\r\n<h1>Not found</h1>");
-        n = write(newsockfd, response, strlen(response));
+            sprintf(response, "HTTP/1.1 404 Not found\r\nContent-Type: text/html\r\n\r\n<h1>Not found</h1>");
+            n = write(newsockfd, response, strlen(response));
         } close(newsockfd);
     } close(sockfd);
     return 0;
